@@ -85,6 +85,33 @@ body {
   background-size:200px 200px;
 }
 
+/* ═══════════════════════════ MUSIC TOGGLE ═══════════════════════════ */
+.music-toggle {
+  position:fixed; bottom:40px; left:40px; z-index:200;
+  width:44px; height:44px;
+  border:1px solid rgba(201,169,110,0.3);
+  border-radius:50%;
+  background:rgba(13,11,10,0.7);
+  backdrop-filter:blur(10px);
+  display:flex; align-items:center; justify-content:center;
+  cursor:none;
+  transition:border-color 0.3s, box-shadow 0.3s;
+}
+.music-toggle:hover { border-color:var(--gold); box-shadow:0 0 24px rgba(201,169,110,0.2); }
+.music-toggle .music-icon {
+  color:var(--gold);
+  font-size:1.1rem;
+  transition:opacity 0.3s;
+  line-height:1;
+  user-select:none;
+}
+.music-toggle.playing .music-icon { animation:musicPulse 2s ease-in-out infinite; }
+.music-toggle:not(.playing) .music-icon { opacity:0.5; }
+@keyframes musicPulse {
+  0%,100% { opacity:0.7; }
+  50%     { opacity:1; }
+}
+
 /* ═══════════════════════════ NAV ═══════════════════════════ */
 nav {
   position:fixed; top:0; left:0; right:0; z-index:100;
@@ -737,6 +764,7 @@ nav .menu-text {
   .lightbox-nav { display:none; }
   .stats-row { gap:32px; flex-wrap:wrap; }
   .back-to-top { bottom:20px; right:20px; width:40px; height:40px; }
+  .music-toggle { bottom:20px; left:20px; width:40px; height:40px; }
   .corner-accent { display:none; }
   .page-bracket { display:none; }
 }
@@ -788,6 +816,9 @@ nav .menu-text {
 <div class="loader" id="loader">
   <div class="loader-ring"></div>
 </div>
+
+<!-- Audio -->
+<audio id="bgMusic" src="music/A thousand years.mp3" loop preload="auto"></audio>
 
 <!-- NAV -->
 <nav id="nav">
@@ -880,6 +911,11 @@ nav .menu-text {
   </div>
 </div>
 
+<!-- MUSIC TOGGLE -->
+<button class="music-toggle playing" id="musicToggle" aria-label="Music">
+  <span class="music-icon">&#9835;</span>
+</button>
+
 <!-- BACK TO TOP -->
 <a class="back-to-top" id="backToTop" href="#hero">
   <span class="arrow">&uarr;</span>
@@ -919,7 +955,7 @@ nav .menu-text {
     animateCursor();
 
     // Add hover effect to clickable elements via delegation
-    const hoverSelector = '.gallery-item, .lightbox-nav, .lightbox-close, .featured-image, .back-to-top';
+    const hoverSelector = '.gallery-item, .lightbox-nav, .lightbox-close, .featured-image, .back-to-top, .music-toggle';
     document.addEventListener('mouseover', (e) => {
       if (e.target.closest(hoverSelector)) cursor.classList.add('hover');
     });
@@ -934,6 +970,40 @@ nav .menu-text {
   window.addEventListener('load', () => {
     setTimeout(() => document.getElementById('loader').classList.add('hidden'), 600);
   });
+
+  // ═══════ MUSIC CONTROL ═══════
+  const bgMusic = document.getElementById('bgMusic');
+  const musicToggle = document.getElementById('musicToggle');
+  let musicStarted = false;
+
+  function startMusic() {
+    if (musicStarted) return;
+    bgMusic.volume = 0.35;
+    bgMusic.play().then(() => {
+      musicStarted = true;
+      musicToggle.classList.add('playing');
+    }).catch(() => {});
+  }
+
+  function toggleMusic() {
+    if (!musicStarted) {
+      startMusic();
+      return;
+    }
+    if (bgMusic.paused) {
+      bgMusic.play();
+      musicToggle.classList.add('playing');
+    } else {
+      bgMusic.pause();
+      musicToggle.classList.remove('playing');
+    }
+  }
+
+  musicToggle.addEventListener('click', (e) => { e.preventDefault(); toggleMusic(); });
+
+  // Auto-start on first user interaction with the page
+  document.addEventListener('click', startMusic, { once: true });
+  document.addEventListener('touchstart', startMusic, { once: true });
 
   // ═══════ HERO PARTICLES ═══════
   const particlesContainer = document.getElementById('heroParticles');
