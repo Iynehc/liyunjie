@@ -761,10 +761,11 @@ nav .menu-text {
   body { cursor:auto; }
   nav { padding:18px 24px; }
   .hero-name { font-size:3rem; }
-  .gallery { grid-template-columns:repeat(2, 1fr); gap:4px; }
-  .gallery-item { grid-column:span 1 !important; grid-row:span 1 !important; aspect-ratio:auto !important; }
-  .gallery-item:nth-child(4n+1) { grid-column:span 2 !important; }
-  .gallery-item img { height:auto !important; object-fit:contain !important; background:#141110; }
+  .gallery { display:block; columns:2; column-gap:4px; }
+  .gallery-item { display:block; break-inside:avoid; margin-bottom:4px; opacity:1 !important; transform:none !important; transition:none !important; }
+  .gallery-item img { height:auto !important; object-fit:contain !important; background:#141110; display:block; }
+  .gallery-item .item-overlay { display:none; }
+  .gallery-item .corner-accent { display:none; }
   .gallery-container { padding:0 12px; }
   .featured-strip { padding:60px 0; }
   .featured-strip-inner { padding:0 24px; }
